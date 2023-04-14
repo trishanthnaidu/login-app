@@ -14,9 +14,67 @@ const dataSet = {
         isLoggedIn: false,
     },
 };
-
+let tableData = [
+    {
+        email: "trnaidu@gmail.com",
+        user: "Trishanth Naidu",
+        userId: "trnaidu",
+        userStatus: "ACTIVE",
+        userTypes: "EDUCATOR",
+    },
+    {
+        email: "njain@gmail.com",
+        user: "Naman Jain",
+        userId: "njain",
+        userStatus: "ACTIVE",
+        userTypes: "STUDENT",
+    },
+    {
+        email: "dgoyal@gmail.com",
+        user: "Deepanshu Goyal",
+        userId: "dgoyal",
+        userStatus: "ACTIVE",
+        userTypes: "STUDENT",
+    },
+    {
+        email: "spalai@gmail.com",
+        user: "Sandeep Palai",
+        userId: "spalai",
+        userStatus: "ACTIVE",
+        userTypes: "STUDENT",
+    },
+    {
+        email: "skhandekar@gmail.com",
+        user: "Sagar Khandekar",
+        userId: "skhandekar",
+        userStatus: "ACTIVE",
+        userTypes: "STUDENT",
+    },
+    {
+        email: "asingh@gmail.com",
+        user: "Abhimanyu singh",
+        userId: "asingh",
+        userStatus: "INACTIVE",
+        userTypes: "STUDENT",
+    },
+    {
+        email: "nkumari@gmail.com",
+        user: "Nisha Kumari",
+        userId: "nkumari",
+        userStatus: "INACTIVE",
+        userTypes: "STUDENT",
+    },
+];
 app.use(express.json(), express.urlencoded(), cors());
+app.get("/getTableData", (req, res) => {
+    res.send({ tableData, isError: false });
+});
+app.post("/addDataToTable", (req, res) => {
+    const newRow = req.body || {};
 
+    tableData = [newRow, ...tableData];
+    res.send({ tableData, isError: false });
+});
 app.post("/authenticateUser", (req, res) => {
     const req_UserName = req.body.userName || "";
     const req_Password = req.body.password || "";
