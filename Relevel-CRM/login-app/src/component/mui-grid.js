@@ -13,16 +13,29 @@ const GridContainer = styled.div`
     background-color: white;
 `;
 
-const columnDefs = [{ field: "make" }, { field: "model" }, { field: "price" }];
+const columnDefs = [
+    { field: "make1" },
+    { field: "model1" },
+    { field: "price1" },
+];
 
 export const MuiGrid = function () {
     const rowData = useGridData({
         hasId: true,
         url: "https://www.ag-grid.com/example-assets/row-data.json",
     });
+    const transformedData = rowData.map((item) => {
+        // boiler-plating and destructuring
+        const { make: make1, model: model1, price: price1, id } = item;
+        return { id, make1, model1, price1 };
+    });
     return (
         <GridContainer>
-            <DataGrid checkboxSelection rows={rowData} columns={columnDefs} />
+            <DataGrid
+                checkboxSelection
+                rows={transformedData}
+                columns={columnDefs}
+            />
         </GridContainer>
     );
 };

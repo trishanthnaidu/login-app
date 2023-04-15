@@ -1,21 +1,25 @@
 import React from "react";
+import axios from "axios";
 
-export const useGridData = function ({ url, hasId = false }) {
-    const [data, setData] = React.useState([]);
+export const useGridData = function ({
+    url,
+    method = "get",
+    data = {},
+    hasId = false,
+}) {
+    const [respData, setRespData] = React.useState([]);
 
     React.useEffect(() => {
         const getData = async function () {
-            const resp = await fetch(url);
-            let data = await resp.json();
-
+            let resp = await axios({ method, url, data });
             // adding id to every row data for mui grid
-            hasId && data.forEach((item, index) => (item.id = index));
+            hasId && resp.data.forEach((item, index) => (item.id = index));
 
-            setData(data);
+            setRespData(resp.data);
         };
 
         getData();
     }, []);
 
-    return data;
+    return respData;
 };

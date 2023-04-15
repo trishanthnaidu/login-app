@@ -42,6 +42,7 @@
   "devDependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@mui/icons-material": "^5.11.16",
     "@mui/x-data-grid": "^6.0.4",
     "ag-grid-community": "^29.2.0",
     "ag-grid-react": "^29.2.0",

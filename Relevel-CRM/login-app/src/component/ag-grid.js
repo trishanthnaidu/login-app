@@ -6,28 +6,70 @@ import styled from "styled-components";
 import { useGridData } from "./grid-data";
 
 const GridContainer = styled.div`
-    width: 50vw;
+    width: 74vw;
     height: 300px;
     min-width: 600px;
+
+    & .ag-header {
+        color: #fff;
+        background-color: #1d1724;
+        border-bottom: solid 1px #cca1da;
+    }
+    & .ag-cell {
+        color: #9d88b6;
+        background-color: #1d1724;
+    }
+    & .ag-row {
+        color: #9d88b6;
+        border-bottom: solid 1px #493650;
+    }
+    & .ag-header-cell {
+        color: #fddbff;
+    }
+    & .ag-root-wrapper {
+        border: 1px solid #493650;
+    }
 `;
 const defaultColDef = {
     sortable: true,
 };
-export const AgGrid = function () {
-    const rowData = useGridData({
-        url: "https://www.ag-grid.com/example-assets/row-data.json",
-    });
+
+const Grid = styled(AgGridReact)``;
+export const AgGrid = function ({ tableData, isError }) {
+    const cellRendererFn = function (params) {
+        if (params.value === "content") {
+            return <span contentEditable>{params.value}</span>;
+        }
+        return params.value;
+    };
     const columnDefs = [
-        { field: "make" },
-        { field: "model" },
-        { field: "price" },
+        {
+            field: "email",
+            cellRenderer: cellRendererFn,
+        },
+        {
+            field: "user",
+            cellRenderer: cellRendererFn,
+        },
+        {
+            field: "userId",
+            cellRenderer: cellRendererFn,
+        },
+        {
+            field: "userStatus",
+            cellRenderer: cellRendererFn,
+        },
+        {
+            field: "userTypes",
+            cellRenderer: cellRendererFn,
+        },
     ];
     return (
         <GridContainer className="ag-theme-alpine">
-            <AgGridReact
-                defaultColDef={defaultColDef}
-                rowData={rowData}
+            <Grid
+                rowData={tableData}
                 columnDefs={columnDefs}
+                defaultColDef={defaultColDef}
             />
         </GridContainer>
     );
