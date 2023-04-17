@@ -1,6 +1,6 @@
 import React from "react";
 import { styled, useTheme } from "@mui/material/styles";
-import { TextFields, Dashboard } from "@mui/icons-material";
+import { TextFields, BarChartRounded } from "@mui/icons-material";
 import MuiDrawer from "@mui/material/Drawer";
 import {
     List,
@@ -67,7 +67,7 @@ export const SidePanel = function () {
                                 }}
                             >
                                 {index % 2 === 0 ? (
-                                    <Dashboard
+                                    <BarChartRounded
                                         onClick={() => nav("/admin/one-view")}
                                     />
                                 ) : (

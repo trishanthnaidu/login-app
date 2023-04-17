@@ -4,7 +4,7 @@ import { SidePanel } from "../side-panel";
 
 const Container = styled.div`
     display: flex;
-    padding: 20px;
+    padding: 12px;
     margin-left: 64px;
     flex-direction: column;
     width: calc(100vw - 104px);

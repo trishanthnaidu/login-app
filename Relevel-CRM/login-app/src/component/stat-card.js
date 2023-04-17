@@ -10,7 +10,7 @@ const themeContext = {
 };
 
 const Container = styled.div`
-    width: 200px;
+    width: 300px;
     margin: 20px;
     height: 140px;
     display: flex;
@@ -88,7 +88,7 @@ const Icon = styled(Value)`
 `;
 
 const Type = styled(Icon)`
-    color: #585858;
+    color: #eee;
     font-size: 20px;
 `;
 

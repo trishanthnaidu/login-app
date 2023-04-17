@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Box, Typography, TextField, Button } from "@mui/material";
+import DropDown from "./dropdown";
 
 const style = {
     position: "absolute",
@@ -19,25 +20,31 @@ const style = {
     },
 };
 
+const users = [
+    "@trnaidu",
+    "@gyprakash",
+    "@askumar",
+    "@vimokashi",
+    "@sapalai",
+    "@munarveriya",
+];
+
 export const AddUserModal = function ({ open, setOpen, addRowData }) {
     const handleClose = function () {
         setOpen(!open);
     };
-    const emailRef = React.useRef();
-    const userRef = React.useRef();
-    const userIdRef = React.useRef();
-    const userStatusRef = React.useRef();
-    const userTypesRef = React.useRef();
+    const taskDescRef = React.useRef();
+    const [owner, setOwner] = React.useState("");
+    const [creator, setCreator] = React.useState("");
+
     const addNewRowData = function () {
-        debugger;
         addRowData({
-            email: emailRef.current.value || "",
-            user: userRef.current.value || "",
-            userId: userIdRef.current.value || "",
-            userStatus: userStatusRef.current.value || "",
-            userTypes: userTypesRef.current.value || "",
+            taskDesc: taskDescRef.current.value || "",
+            owner: owner || "",
+            creator: creator || "",
         });
     };
+
     return (
         <Modal
             open={open}
@@ -46,32 +53,38 @@ export const AddUserModal = function ({ open, setOpen, addRowData }) {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                <Typography variant="body1" component="body">
-                    New User
+                <Typography
+                    sx={{ color: "white" }}
+                    variant="body1"
+                    component="p"
+                >
+                    Create a Task
                 </Typography>
                 <TextField
-                    inputRef={emailRef}
-                    label="email"
+                    inputRef={taskDescRef}
+                    label="Task Description"
                     variant="outlined"
                 />
-                <TextField inputRef={userRef} label="user" variant="outlined" />
-                <TextField
-                    inputRef={userIdRef}
-                    label="userId"
-                    variant="outlined"
+
+                <DropDown
+                    items={users}
+                    label="Owner"
+                    handler={setOwner}
+                    value={owner}
                 />
-                <TextField
-                    inputRef={userStatusRef}
-                    label="userStatus"
-                    variant="outlined"
+                <DropDown
+                    items={users}
+                    label="Creator"
+                    handler={setCreator}
+                    value={creator}
                 />
-                <TextField
-                    inputRef={userTypesRef}
-                    label="userTypes"
-                    variant="outlined"
-                />
-                <Button variant="contained" onClick={addNewRowData}>
-                    Add User
+
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={addNewRowData}
+                >
+                    Add Task
                 </Button>
             </Box>
         </Modal>

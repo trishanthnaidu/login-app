@@ -4,9 +4,10 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import styled from "styled-components";
 import { useGridData } from "./grid-data";
+import { Button } from "@mui/material";
 
 const GridContainer = styled.div`
-    width: 74vw;
+    width: 91vw;
     height: 300px;
     min-width: 600px;
 
@@ -29,39 +30,84 @@ const GridContainer = styled.div`
     & .ag-root-wrapper {
         border: 1px solid #493650;
     }
+    & .ag-center-cols-viewport {
+        background-color: #1d1724;
+    }
 `;
 const defaultColDef = {
     sortable: true,
 };
-
+const statusMap = {
+    0: "Backlog",
+    1: "In Progress",
+    2: "Complete",
+    3: "Closed",
+    4: "Closed",
+};
 const Grid = styled(AgGridReact)``;
-export const AgGrid = function ({ tableData, isError }) {
+export const AgGrid = function ({ tableData, isError, onUpdate }) {
     const cellRendererFn = function (params) {
         if (params.value === "content") {
-            return <span contentEditable>{params.value}</span>;
+            return <span>{params.value}</span>;
         }
         return params.value;
     };
+    const cellStatusRendererFn = function (params) {
+        return <span>{statusMap[params.value]}</span>;
+    };
+    const cellUserRendererFn = function (params) {
+        return (
+            <a style={{ color: "#d390ee" }} href="#">
+                {params.value}
+            </a>
+        );
+    };
+    const onChangeStatus = function (params) {
+        let row = params.node.data;
+        row.status = params.node.data.actions;
+
+        onUpdate(row);
+    };
+    const cellActionRendererFn = function (params) {
+        return (
+            <Button
+                size="small"
+                variant="outlined"
+                onClick={() => onChangeStatus(params)}
+                disabled={params.value == 4}
+            >
+                {statusMap[params.value]}
+            </Button>
+        );
+    };
     const columnDefs = [
         {
-            field: "email",
+            field: "taskId",
             cellRenderer: cellRendererFn,
         },
         {
-            field: "user",
+            field: "taskDesc",
             cellRenderer: cellRendererFn,
         },
         {
-            field: "userId",
+            field: "owner",
+            cellRenderer: cellUserRendererFn,
+        },
+        {
+            field: "creator",
+            cellRenderer: cellUserRendererFn,
+        },
+        {
+            field: "status",
+            cellRenderer: cellStatusRendererFn,
+        },
+        {
+            field: "loggedHours",
             cellRenderer: cellRendererFn,
         },
         {
-            field: "userStatus",
-            cellRenderer: cellRendererFn,
-        },
-        {
-            field: "userTypes",
-            cellRenderer: cellRendererFn,
+            field: "actions",
+            cellRenderer: cellActionRendererFn,
         },
     ];
     return (

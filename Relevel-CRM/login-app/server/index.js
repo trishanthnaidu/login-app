@@ -14,66 +14,63 @@ const dataSet = {
         isLoggedIn: false,
     },
 };
+let lastTaskIdCached = null;
 let tableData = [
     {
-        email: "trnaidu@gmail.com",
-        user: "Trishanth Naidu",
-        userId: "trnaidu",
-        userStatus: "ACTIVE",
-        userTypes: "EDUCATOR",
-    },
-    {
-        email: "njain@gmail.com",
-        user: "Naman Jain",
-        userId: "njain",
-        userStatus: "ACTIVE",
-        userTypes: "STUDENT",
-    },
-    {
-        email: "dgoyal@gmail.com",
-        user: "Deepanshu Goyal",
-        userId: "dgoyal",
-        userStatus: "ACTIVE",
-        userTypes: "STUDENT",
-    },
-    {
-        email: "spalai@gmail.com",
-        user: "Sandeep Palai",
-        userId: "spalai",
-        userStatus: "ACTIVE",
-        userTypes: "STUDENT",
-    },
-    {
-        email: "skhandekar@gmail.com",
-        user: "Sagar Khandekar",
-        userId: "skhandekar",
-        userStatus: "ACTIVE",
-        userTypes: "STUDENT",
-    },
-    {
-        email: "asingh@gmail.com",
-        user: "Abhimanyu singh",
-        userId: "asingh",
-        userStatus: "INACTIVE",
-        userTypes: "STUDENT",
-    },
-    {
-        email: "nkumari@gmail.com",
-        user: "Nisha Kumari",
-        userId: "nkumari",
-        userStatus: "INACTIVE",
-        userTypes: "STUDENT",
+        taskId: 1341,
+        taskDesc: "Create an Admin Panel",
+        owner: "@trnaidu",
+        creator: "@trnaidu",
+        status: 0,
+        loggedHours: "2h",
+        actions: 1,
     },
 ];
+function getStats() {
+    return {
+        backlog: tableData.filter((x) => x.status === 0).length,
+        inProgress: tableData.filter((x) => x.status === 1).length,
+        complete: tableData.filter((x) => x.status === 2).length,
+        closed: tableData.filter((x) => x.status === 3).length,
+    };
+}
 app.use(express.json(), express.urlencoded(), cors());
 app.get("/getTableData", (req, res) => {
-    res.send({ tableData, isError: false });
+    res.send({ tableData, isError: false, statData: getStats() });
+});
+app.post("/updateDataToTable", (req, res) => {
+    const row = req.body || {};
+    const tableDataUpdated = [...tableData];
+    const rowToBeUpdated = tableDataUpdated.find(
+        (x) => x.taskId === row?.taskId
+    );
+
+    rowToBeUpdated.taskId = row.taskId;
+    rowToBeUpdated.taskDesc = row.taskDesc;
+    rowToBeUpdated.owner = row.owner;
+    rowToBeUpdated.creator = row.creator;
+    rowToBeUpdated.status = row.status;
+    rowToBeUpdated.loggedHours = row.loggedHours;
+    rowToBeUpdated.actions = Number(row.actions) + 1;
+
+    // immutability
+    tableData = [...tableDataUpdated];
+
+    res.send({ tableData, isError: false, statData: getStats() });
 });
 app.post("/addDataToTable", (req, res) => {
     const newRow = req.body || {};
-
+    const newTaskId =
+        lastTaskIdCached ||
+        tableData.sort((a, b) => b.taskId - a.taskId)[0].taskId + 1;
+    lastTaskIdCached = newTaskId + 1;
+    newRow.status = 0;
+    newRow.actions = 1;
+    newRow.taskId = newTaskId;
+    newRow.loggedHours = "0h";
     tableData = [newRow, ...tableData];
-    res.send({ tableData, isError: false });
+
+    res.send({ tableData, isError: false, statData: getStats() });
 });
 app.post("/authenticateUser", (req, res) => {
     const req_UserName = req.body.userName || "";
