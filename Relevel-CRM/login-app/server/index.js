@@ -41,6 +41,23 @@ app.get("/getTableData", (req, res) => {
 app.post("/updateDataToTable", (req, res) => {
     const row = req.body || {};
     const tableDataUpdated = [...tableData];
+
+    // delete the row
+    if (
+        row.taskDesc === "" &&
+        row.owner === "" &&
+        row.creator === "" &&
+        row.status === "4" &&
+        row.loggedHours === ""
+    ) {
+        const allRowsExpectToBeDeleted = tableDataUpdated.filter(
+            (x) => x.taskId !== row?.taskId
+        );
+        tableData = [...allRowsExpectToBeDeleted];
+        res.send({ tableData, isError: false, statData: getStats() });
+        return;
+    }
+
     const rowToBeUpdated = tableDataUpdated.find(
         (x) => x.taskId === row?.taskId
     );
@@ -51,7 +68,8 @@ app.post("/updateDataToTable", (req, res) => {
     rowToBeUpdated.creator = row.creator;
     rowToBeUpdated.status = row.status;
     rowToBeUpdated.loggedHours = row.loggedHours;
-    rowToBeUpdated.actions = Number(row.actions) + 1;
+    rowToBeUpdated.actions =
+        row.status < 3 ? Number(row.status) + 1 : row.actions;
 
     // immutability
     tableData = [...tableDataUpdated];

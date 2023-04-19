@@ -7,6 +7,7 @@ import { StatCard } from "../stat-card";
 import { useGridData } from "../grid-data";
 import { AddUserModal } from "../add-user-modal";
 import { Edit3, Plus } from "react-feather";
+import { EditTask } from "../edit-task-modal";
 
 const StatContainer = styled.div`
     display: flex;
@@ -30,6 +31,10 @@ export const OneView = function () {
     });
     const [state, setState] = React.useState(rowData);
     const [open, setOpen] = React.useState(false);
+    const [onEdit, setOnEdit] = React.useReducer(
+        (state, newState) => ({ ...state, ...newState }),
+        { isEdit: false, rowData: [] }
+    );
     React.useEffect(
         function () {
             setState(rowData);
@@ -52,13 +57,11 @@ export const OneView = function () {
         });
     };
     const onRowUpdate = async function (data) {
-        debugger;
         let resp = await axios({
             method: "post",
             url: "http://localhost:9000/updateDataToTable",
             data,
         });
-        debugger;
         setState({
             tableData: resp.data.tableData,
             statData: resp.data.statData,
@@ -99,6 +102,7 @@ export const OneView = function () {
                     tableData={state.tableData}
                     isError={state.isError}
                     onUpdate={onRowUpdate}
+                    setIsEdit={setOnEdit}
                 />
                 <ButtonContainer>
                     <Button
@@ -115,6 +119,12 @@ export const OneView = function () {
                 open={open}
                 setOpen={setOpen}
                 addRowData={addRowData}
+            />
+            <EditTask
+                isEdit={onEdit.isEdit}
+                setIsEdit={setOnEdit}
+                rowData={onEdit.rowData}
+                updateRowData={onRowUpdate}
             />
         </React.Fragment>
     );

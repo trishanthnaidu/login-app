@@ -4,7 +4,8 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import styled from "styled-components";
 import { useGridData } from "./grid-data";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
+import { Edit, Edit2, Edit3, X } from "react-feather";
 
 const GridContainer = styled.div`
     width: 91vw;
@@ -45,7 +46,7 @@ const statusMap = {
     4: "Closed",
 };
 const Grid = styled(AgGridReact)``;
-export const AgGrid = function ({ tableData, isError, onUpdate }) {
+export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
     const cellRendererFn = function (params) {
         if (params.value === "content") {
             return <span>{params.value}</span>;
@@ -53,7 +54,34 @@ export const AgGrid = function ({ tableData, isError, onUpdate }) {
         return params.value;
     };
     const cellStatusRendererFn = function (params) {
-        return <span>{statusMap[params.value]}</span>;
+        let color = "#4caf50";
+        debugger;
+        switch (params.value) {
+            case 0: {
+                color = "#e91e63";
+                break;
+            }
+            case 1: {
+                color = "#00bcd4";
+                break;
+            }
+            case 2: {
+                color = "#4caf50";
+                break;
+            }
+            case 3: {
+                color = "#673ab7";
+                break;
+            }
+            default: {
+                color = "#e91e63";
+            }
+        }
+        return (
+            <span style={{ color, fontWeight: "bold" }}>
+                {statusMap[params.value]}
+            </span>
+        );
     };
     const cellUserRendererFn = function (params) {
         return (
@@ -65,19 +93,53 @@ export const AgGrid = function ({ tableData, isError, onUpdate }) {
     const onChangeStatus = function (params) {
         let row = params.node.data;
         row.status = params.node.data.actions;
+        row.actions = Number(params.node.data.actions) + 1;
 
         onUpdate(row);
     };
+    const onEdit = function (params) {
+        setIsEdit({ isEdit: true, rowData: params.node.data });
+    };
+    const deleteRow = function (params) {
+        let row = params.node.data;
+        onUpdate({
+            ...row,
+            taskDesc: "",
+            owner: "",
+            creator: "",
+            status: "4",
+            loggedHours: "",
+        });
+    };
     const cellActionRendererFn = function (params) {
         return (
-            <Button
-                size="small"
-                variant="outlined"
-                onClick={() => onChangeStatus(params)}
-                disabled={params.value == 4}
-            >
-                {statusMap[params.value]}
-            </Button>
+            <>
+                <Button
+                    size="small"
+                    variant="outlined"
+                    sx={{ margin: "0" }}
+                    onClick={() => onChangeStatus(params)}
+                    disabled={params.value == 4}
+                >
+                    {statusMap[params.value]}
+                </Button>
+                <IconButton
+                    color="secondary"
+                    sx={{ marginLeft: "4px" }}
+                    size="small"
+                    onClick={() => onEdit(params)}
+                >
+                    <Edit2 />
+                </IconButton>
+                <IconButton
+                    color="secondary"
+                    sx={{ marginLeft: "4px" }}
+                    size="small"
+                    onClick={() => deleteRow(params)}
+                >
+                    <X />
+                </IconButton>
+            </>
         );
     };
     const columnDefs = [
@@ -103,10 +165,12 @@ export const AgGrid = function ({ tableData, isError, onUpdate }) {
         },
         {
             field: "loggedHours",
+            width: 160,
             cellRenderer: cellRendererFn,
         },
         {
             field: "actions",
+            width: 260,
             cellRenderer: cellActionRendererFn,
         },
     ];
