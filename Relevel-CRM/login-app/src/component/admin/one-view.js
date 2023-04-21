@@ -2,12 +2,15 @@ import React from "react";
 import axios from "axios";
 import { AgGrid } from "../ag-grid";
 import styled from "styled-components";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { StatCard } from "../stat-card";
 import { useGridData } from "../grid-data";
 import { AddUserModal } from "../add-user-modal";
-import { Edit3, Plus } from "react-feather";
+import { ChevronLeft, ChevronRight, Edit3, Plus } from "react-feather";
 import { EditTask } from "../edit-task-modal";
+import { useNavigate } from "react-router-dom";
+import { BarChart } from "../charts/bar";
+import { AreaChart } from "../charts/area";
 
 const StatContainer = styled.div`
     display: flex;
@@ -17,6 +20,18 @@ const GridSection = styled.div`
     margin: 20px;
     display: flex;
     flex-direction: column;
+`;
+const ChartSection = styled.div`
+    margin: 20px;
+    display: flex;
+    justify-content: space-between;
+`;
+const BarSection = styled.div`
+    width: 800px;
+    height: 330px;
+`;
+const PieSection = styled.div`
+    width: 330px;
 `;
 const ButtonContainer = styled.div`
     width: 82%;
@@ -37,6 +52,7 @@ export const OneView = function () {
     );
     React.useEffect(
         function () {
+            debugger;
             setState(rowData);
         },
         [rowData]
@@ -96,7 +112,6 @@ export const OneView = function () {
                     theme="1"
                 />
             </StatContainer>
-
             <GridSection>
                 <AgGrid
                     tableData={state.tableData}
@@ -115,6 +130,14 @@ export const OneView = function () {
                     </Button>
                 </ButtonContainer>
             </GridSection>
+            <ChartSection>
+                <BarSection>
+                    <BarChart data={rowData} />
+                </BarSection>
+                <PieSection>
+                    <AreaChart data={rowData} />
+                </PieSection>
+            </ChartSection>
             <AddUserModal
                 open={open}
                 setOpen={setOpen}

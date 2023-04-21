@@ -55,7 +55,6 @@ export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
     };
     const cellStatusRendererFn = function (params) {
         let color = "#4caf50";
-        debugger;
         switch (params.value) {
             case 0: {
                 color = "#e91e63";
@@ -113,7 +112,12 @@ export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
     };
     const cellActionRendererFn = function (params) {
         return (
-            <>
+            <span
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                }}
+            >
                 <Button
                     size="small"
                     variant="outlined"
@@ -123,23 +127,25 @@ export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
                 >
                     {statusMap[params.value]}
                 </Button>
-                <IconButton
-                    color="secondary"
-                    sx={{ marginLeft: "4px" }}
-                    size="small"
-                    onClick={() => onEdit(params)}
-                >
-                    <Edit2 />
-                </IconButton>
-                <IconButton
-                    color="secondary"
-                    sx={{ marginLeft: "4px" }}
-                    size="small"
-                    onClick={() => deleteRow(params)}
-                >
-                    <X />
-                </IconButton>
-            </>
+                <span>
+                    <IconButton
+                        color="secondary"
+                        sx={{ marginLeft: "4px" }}
+                        size="small"
+                        onClick={() => onEdit(params)}
+                    >
+                        <Edit2 />
+                    </IconButton>
+                    <IconButton
+                        color="secondary"
+                        sx={{ marginLeft: "4px" }}
+                        size="small"
+                        onClick={() => deleteRow(params)}
+                    >
+                        <X />
+                    </IconButton>
+                </span>
+            </span>
         );
     };
     const columnDefs = [

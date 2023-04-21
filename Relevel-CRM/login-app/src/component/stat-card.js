@@ -12,7 +12,7 @@ const themeContext = {
 const Container = styled.div`
     width: 300px;
     margin: 20px;
-    height: 140px;
+    height: 100px;
     display: flex;
     padding: 5px 10px;
     border-radius: 6px;
