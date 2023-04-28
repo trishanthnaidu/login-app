@@ -42,7 +42,9 @@ const ButtonContainer = styled.div`
 
 export const OneView = function () {
     let rowData = useGridData({
-        url: "http://localhost:9000/getTableData",
+        url: `http://localhost:9000/getTableData?userName=${sessionStorage.getItem(
+            "userName"
+        )}`,
     });
     const [state, setState] = React.useState(rowData);
     const [open, setOpen] = React.useState(false);
@@ -64,7 +66,7 @@ export const OneView = function () {
         let resp = await axios({
             method: "post",
             url: "http://localhost:9000/addDataToTable",
-            data,
+            data: { data, userName: sessionStorage.getItem("userName") },
         });
         setState({
             tableData: resp.data.tableData,
@@ -76,7 +78,7 @@ export const OneView = function () {
         let resp = await axios({
             method: "post",
             url: "http://localhost:9000/updateDataToTable",
-            data,
+            data: { data, userName: sessionStorage.getItem("userName") },
         });
         setState({
             tableData: resp.data.tableData,

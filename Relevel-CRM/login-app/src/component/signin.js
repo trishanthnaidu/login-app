@@ -46,7 +46,8 @@ export const LogIn = function () {
             sessionStorage.setItem("userName", userName);
             sessionStorage.setItem("isAdmin", resp.data.isAdmin);
             setMessage("You have logged in ");
-            nav("/home");
+            if (resp.data.isAdmin) nav("/admin/one-view");
+            else nav("/home");
         } else {
             setMessage(resp.data.message);
             sessionStorage.setItem("isAdmin", false);

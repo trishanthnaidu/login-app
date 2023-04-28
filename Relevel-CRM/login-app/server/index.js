@@ -3,27 +3,37 @@ const cors = require("cors");
 const app = express();
 const port = 9000;
 const dataSet = {
-    trishanthnaidu: {
+    "@trnaidu": {
         isAdmin: true,
-        password: "Pwd123",
+        password: "1234",
         isLoggedIn: false,
     },
-    testuser: {
+    "@vimokashi": {
         isAdmin: false,
-        password: "Pwd456",
+        password: "1234",
+        isLoggedIn: false,
+    },
+    "@askumar": {
+        isAdmin: false,
+        password: "1234",
+        isLoggedIn: false,
+    },
+    "@sapalai": {
+        isAdmin: false,
+        password: "1234",
         isLoggedIn: false,
     },
 };
 let lastTaskIdCached = null;
 let tableData = [
     {
-        taskDesc: "Farewell ",
+        taskDesc: "Farewell",
         owner: "@trnaidu",
         creator: "@trnaidu",
         status: 0,
         actions: 1,
         taskId: 1353,
-        loggedHours: "12h",
+        loggedHours: "24h",
     },
     {
         taskDesc: "Create visualisations for Admin Panel",
@@ -134,20 +144,53 @@ let tableData = [
         actions: 1,
     },
 ];
-function getStats() {
-    return {
-        backlog: tableData.filter((x) => x.status === 0).length,
-        inProgress: tableData.filter((x) => x.status === 1).length,
-        complete: tableData.filter((x) => x.status === 2).length,
-        closed: tableData.filter((x) => x.status === 3).length,
-    };
+function getStats(isAdmin, userName) {
+    if (isAdmin)
+        return {
+            backlog: tableData.filter((x) => x.status === 0).length,
+            inProgress: tableData.filter((x) => x.status === 1).length,
+            complete: tableData.filter((x) => x.status === 2).length,
+            closed: tableData.filter((x) => x.status === 3).length,
+        };
+    else
+        return {
+            backlog: tableData.filter(
+                (x) => x.status === 0 && x.owner === userName
+            ).length,
+            inProgress: tableData.filter(
+                (x) => x.status === 1 && x.owner === userName
+            ).length,
+            complete: tableData.filter(
+                (x) => x.status === 2 && x.owner === userName
+            ).length,
+            closed: tableData.filter(
+                (x) => x.status === 3 && x.owner === userName
+            ).length,
+        };
 }
 app.use(express.json(), express.urlencoded(), cors());
 app.get("/getTableData", (req, res) => {
-    res.send({ tableData, isError: false, statData: getStats() });
+    const userName = req.query?.userName || undefined;
+    const isAdmin = dataSet[userName]?.isAdmin || false;
+
+    if (isAdmin)
+        res.send({
+            tableData,
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    else {
+        res.send({
+            tableData: tableData.filter((item) => item.owner === userName),
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    }
 });
 app.post("/updateDataToTable", (req, res) => {
-    const row = req.body || {};
+    const row = req.body.data || {};
+    const userName = req.body.userName || "";
+    const isAdmin = dataSet[userName]?.isAdmin || false;
     const tableDataUpdated = [...tableData];
 
     // delete the row
@@ -182,10 +225,24 @@ app.post("/updateDataToTable", (req, res) => {
     // immutability
     tableData = [...tableDataUpdated];
 
-    res.send({ tableData, isError: false, statData: getStats() });
+    if (isAdmin)
+        res.send({
+            tableData,
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    else {
+        res.send({
+            tableData: tableData.filter((item) => item.owner === userName),
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    }
 });
 app.post("/addDataToTable", (req, res) => {
-    const newRow = req.body || {};
+    const newRow = req.body?.data || {};
+    const userName = req.body.userName || "";
+    const isAdmin = dataSet[userName]?.isAdmin || false;
     const newTaskId =
         lastTaskIdCached ||
         tableData.sort((a, b) => b.taskId - a.taskId)[0].taskId + 1;
@@ -196,7 +253,19 @@ app.post("/addDataToTable", (req, res) => {
     newRow.loggedHours = "0h";
     tableData = [newRow, ...tableData];
 
-    res.send({ tableData, isError: false, statData: getStats() });
+    if (isAdmin)
+        res.send({
+            tableData,
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    else {
+        res.send({
+            tableData: tableData.filter((item) => item.owner === userName),
+            isError: false,
+            statData: getStats(isAdmin, userName),
+        });
+    }
 });
 app.post("/authenticateUser", (req, res) => {
     const req_UserName = req.body.userName || "";

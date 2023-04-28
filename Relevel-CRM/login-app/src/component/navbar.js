@@ -36,13 +36,17 @@ const Button = styled.button`
         `}
 `;
 
+const AdminLabel = styled.span`
+    color: #888;
+`;
+
 export const NavBar = function (props) {
     const loc = useLocation();
     const nav = useNavigate();
-    const [isAdmin, setIsAdmin] = React.useState("false");
+    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
     React.useEffect(() => {
-        setIsAdmin(sessionStorage.getItem("isAdmin"));
+        setIsLoggedIn(sessionStorage.getItem("userName") || false);
     }, [loc.pathname]);
 
     return (
@@ -50,32 +54,39 @@ export const NavBar = function (props) {
             <LogoContainer>
                 <h6>splash.io</h6>
             </LogoContainer>
+            <AdminLabel>
+                {sessionStorage.getItem("isAdmin") === "true"
+                    ? `${isLoggedIn} - (Admin)`
+                    : `${isLoggedIn} - (User)`}
+            </AdminLabel>
             <SignInContainer>
-                {isAdmin === "true" ? (
-                    <Button
-                        outline
-                        onClick={() => {
-                            nav("/admin");
-                        }}
-                    >
-                        Admin Panel
-                    </Button>
-                ) : loc.pathname === "/login" ? (
-                    <Button
-                        outline
-                        onClick={() => {
-                            nav("/signup");
-                        }}
-                    >
-                        Register
-                    </Button>
+                {!isLoggedIn ? (
+                    loc.pathname === "/login" ? (
+                        <Button
+                            outline
+                            onClick={() => {
+                                nav("/signup");
+                            }}
+                        >
+                            Register
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => {
+                                nav("/login");
+                            }}
+                        >
+                            Login
+                        </Button>
+                    )
                 ) : (
                     <Button
                         onClick={() => {
+                            sessionStorage.clear();
                             nav("/login");
                         }}
                     >
-                        Login
+                        Sign Out
                     </Button>
                 )}
             </SignInContainer>
