@@ -6,7 +6,14 @@ import { Button, IconButton } from "@mui/material";
 import { StatCard } from "../stat-card";
 import { useGridData } from "../grid-data";
 import { AddUserModal } from "../add-user-modal";
-import { ChevronLeft, ChevronRight, Edit3, Plus } from "react-feather";
+import {
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    Edit3,
+    Plus,
+    Upload,
+} from "react-feather";
 import { EditTask } from "../edit-task-modal";
 import { useNavigate } from "react-router-dom";
 import { BarChart } from "../charts/bar";
@@ -38,6 +45,10 @@ const ButtonContainer = styled.div`
     display: flex;
     margin-top: 20px;
     justify-content: flex-start;
+
+    & button {
+        margin: 4px;
+    }
 `;
 
 export const OneView = function () {
@@ -48,13 +59,14 @@ export const OneView = function () {
     });
     const [state, setState] = React.useState(rowData);
     const [open, setOpen] = React.useState(false);
+    const [exportAsCSV, setExportAsCSV] = React.useState(false);
+    const [importAsCSV, setImportAsCSV] = React.useState(false);
     const [onEdit, setOnEdit] = React.useReducer(
         (state, newState) => ({ ...state, ...newState }),
         { isEdit: false, rowData: [] }
     );
     React.useEffect(
         function () {
-            debugger;
             setState(rowData);
         },
         [rowData]
@@ -86,6 +98,15 @@ export const OneView = function () {
             isError: resp.data.isError,
         });
     };
+    const onExportAsCSV = function () {
+        setExportAsCSV(true);
+        setTimeout(function () {
+            setExportAsCSV(false);
+        }, 3000);
+    };
+    const onImportAsCSV = function () {
+        setImportAsCSV(!importAsCSV);
+    };
     return (
         <React.Fragment>
             <StatContainer>
@@ -116,6 +137,8 @@ export const OneView = function () {
             </StatContainer>
             <GridSection>
                 <AgGrid
+                    exportAsCSV={exportAsCSV}
+                    importAsCSV={importAsCSV}
                     tableData={state.tableData}
                     isError={state.isError}
                     onUpdate={onRowUpdate}
@@ -129,6 +152,23 @@ export const OneView = function () {
                         startIcon={<Plus />}
                     >
                         Create a Task
+                    </Button>
+                    <Button
+                        color="success"
+                        variant="contained"
+                        disabled={exportAsCSV}
+                        onClick={onExportAsCSV}
+                        startIcon={<Download />}
+                    >
+                        Export as CSV
+                    </Button>
+                    <Button
+                        color="success"
+                        variant="contained"
+                        onClick={onImportAsCSV}
+                        startIcon={<Upload />}
+                    >
+                        Import from CSV
                     </Button>
                 </ButtonContainer>
             </GridSection>

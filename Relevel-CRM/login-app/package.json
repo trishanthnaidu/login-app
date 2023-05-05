@@ -52,6 +52,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-feather": "^2.0.10",
     "react-router-dom": "^6.9.0",
-    "styled-components": "^5.3.9"
+    "styled-components": "^5.3.9",
+    "xlsx": "^0.18.5"
   }
 }

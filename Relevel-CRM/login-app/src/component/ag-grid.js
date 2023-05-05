@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import styled from "styled-components";
 import { useGridData } from "./grid-data";
 import { Button, IconButton } from "@mui/material";
-import { Edit, Edit2, Edit3, X } from "react-feather";
+import { Download, Edit, Edit2, Edit3, X } from "react-feather";
+import { read } from "xlsx";
 
 const GridContainer = styled.div`
     width: 91vw;
@@ -46,7 +47,14 @@ const statusMap = {
     4: "Closed",
 };
 const Grid = styled(AgGridReact)``;
-export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
+export const AgGrid = function ({
+    tableData,
+    exportAsCSV,
+    onUpdate,
+    setIsEdit,
+    importAsCSV,
+}) {
+    const gridRef = React.useRef();
     const cellRendererFn = function (params) {
         if (params.value === "content") {
             return <span>{params.value}</span>;
@@ -110,6 +118,89 @@ export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
             loggedHours: "",
         });
     };
+    useEffect(
+        function () {
+            if (exportAsCSV) {
+                gridRef.current.api.exportDataAsCsv({
+                    columnKeys: [
+                        "taskId",
+                        "taskDesc",
+                        "owner",
+                        "creator",
+                        "status",
+                        "loggedHours",
+                    ],
+                });
+            }
+        },
+        [exportAsCSV]
+    );
+    useEffect(
+        function () {
+            if (importAsCSV) {
+                const getCSVSheet = async function () {
+                    const resp = await fetch(
+                        "https://www.ag-grid.com/example-assets/olympic-data.xlsx"
+                    );
+                    const data = await resp.arrayBuffer();
+
+                    // transformation of the raw data
+                    /* convert data to binary string */
+                    let transformedData = new Uint8Array(data);
+                    let arr = [];
+
+                    for (var i = 0; i !== transformedData.length; ++i) {
+                        arr[i] = String.fromCharCode(transformedData[i]);
+                    }
+                    debugger;
+                    let bstr = arr.join("");
+                    let workbook = read(bstr, { type: "binary" });
+                    let firstSheetName = workbook.SheetNames[0];
+                    let worksheet = workbook.Sheets[firstSheetName];
+
+                    // we expect the following columns to be present
+                    let columns = {
+                        A: "athlete",
+                        B: "age",
+                        C: "country",
+                        D: "year",
+                        E: "date",
+                        F: "sport",
+                        G: "gold",
+                        H: "silver",
+                        I: "bronze",
+                        J: "total",
+                    };
+
+                    let rowData = [];
+
+                    // start at the 2nd row - the first row are the headers
+                    let rowIndex = 2;
+
+                    // iterate over the worksheet pulling out the columns we're expecting
+                    while (worksheet["A" + rowIndex]) {
+                        let row = {};
+                        Object.keys(columns).forEach(function (column) {
+                            row[columns[column]] =
+                                worksheet[column + rowIndex].w;
+                        });
+
+                        rowData.push(row);
+
+                        rowIndex++;
+                    }
+
+                    //
+
+                    setCsv(rowData);
+                };
+
+                getCSVSheet();
+            }
+        },
+        [importAsCSV]
+    );
+    const [csv, setCsv] = useState([]);
     const cellActionRendererFn = function (params) {
         return (
             <span
@@ -180,13 +271,38 @@ export const AgGrid = function ({ tableData, isError, onUpdate, setIsEdit }) {
             cellRenderer: cellActionRendererFn,
         },
     ];
-    return (
-        <GridContainer className="ag-theme-alpine">
-            <Grid
-                rowData={tableData}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-            />
-        </GridContainer>
-    );
+    if (!importAsCSV)
+        return (
+            <GridContainer className="ag-theme-alpine">
+                <Grid
+                    ref={gridRef}
+                    rowData={tableData}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                />
+            </GridContainer>
+        );
+    else {
+        return (
+            <GridContainer className="ag-theme-alpine">
+                <Grid
+                    ref={gridRef}
+                    rowData={csv}
+                    columnDefs={[
+                        { field: "athlete", minWidth: 180 },
+                        { field: "age" },
+                        { field: "country", minWidth: 150 },
+                        { field: "year" },
+                        { field: "date", minWidth: 130 },
+                        { field: "sport", minWidth: 100 },
+                        { field: "gold" },
+                        { field: "silver" },
+                        { field: "bronze" },
+                        { field: "total" },
+                    ]}
+                    defaultColDef={defaultColDef}
+                />
+            </GridContainer>
+        );
+    }
 };
